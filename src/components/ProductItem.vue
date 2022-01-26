@@ -15,25 +15,11 @@
       </span>
 
       <ul class="colors colors--black">
-        <li class="colors__item">
+        <li class="colors__item" v-for="(colorId, index) in product.colors" :key="index">
           <label class="colors__label">
-          <input class="colors__radio sr-only" type="radio" value="#73B6EA" checked="" v-model="color">
-          <span class="colors__value" style="background-color: #73B6EA;">
+          <input class="colors__radio sr-only" type="radio" :value="colors[colorId-1].code.substr(18)" v-model="color">
+          <span class="colors__value" :style="colors[colorId-1].code">
           </span>
-          </label>
-        </li>
-        <li class="colors__item">
-          <label class="colors__label">
-            <input class="colors__radio sr-only" type="radio" value="#8BE000" v-model="color">
-            <span class="colors__value" style="background-color: #8BE000;">
-            </span>
-          </label>
-        </li>
-        <li class="colors__item">
-          <label class="colors__label">
-            <input class="colors__radio sr-only" type="radio" value="#222" v-model="color">
-            <span class="colors__value" style="background-color: #222;">
-            </span>
           </label>
         </li>
       </ul>
@@ -41,12 +27,19 @@
 </template>
 
 <script>
+import colors from '../data/colors.js';
+
   export default {
     data() {
       return {
         color: '#73B6EA',
       }
     },
-    props: ['product']
+    props: ['product'],
+    computed: {
+      colors() {
+        return colors;
+      },
+    },
   }
 </script>

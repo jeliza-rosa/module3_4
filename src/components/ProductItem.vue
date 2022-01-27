@@ -1,6 +1,6 @@
 <template>
       <li class="catalog__item">
-      <a class="catalog__pic" href="#">
+      <a class="catalog__pic" href="#" @click.prevent="gotoPage('product', {id: product.id})">
         <img :src="product.image" :alt="product.title">
       </a>
 
@@ -11,14 +11,14 @@
       </h3>
 
       <span class="catalog__price">
-        {{ product.price }} ₽
+        {{ product.price | numberFormat}} ₽
       </span>
 
       <ul class="colors colors--black">
         <li class="colors__item" v-for="(colorId, index) in product.colors" :key="index">
           <label class="colors__label">
-          <input class="colors__radio sr-only" type="radio" :value="colors[colorId-1].code.substr(18)" v-model="color">
-          <span class="colors__value" :style="colors[colorId-1].code">
+          <input class="colors__radio sr-only" type="radio" :value="colorCode(colorId, colors).code.substr(18)" v-model="color">
+          <span class="colors__value" :style="colorCode(colorId, colors).code">
           </span>
           </label>
         </li>
@@ -28,6 +28,9 @@
 
 <script>
 import colors from '../data/colors.js';
+import gotoPage from "@/helpers/gotoPage";
+import numberFormat from '../helpers/numberFormat';
+import colorCode from '../helpers/colors';
 
   export default {
     data() {
@@ -35,7 +38,14 @@ import colors from '../data/colors.js';
         color: '#73B6EA',
       }
     },
+    methods: {
+      gotoPage,
+      colorCode
+    },
     props: ['product'],
+    filters: {
+      numberFormat
+    },
     computed: {
       colors() {
         return colors;

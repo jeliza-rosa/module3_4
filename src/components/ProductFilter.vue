@@ -159,6 +159,6 @@ import colors from '../data/colors.js';
         this.$emit('update:categoryId', 0);
         this.$emit('update:color', 0);
       },
-    },
+    }
   }
 </script>

@@ -3,14 +3,14 @@
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
-          <a class="breadcrumbs__link" href="index.html" @click.prevent="gotoPage('main')">
+          <router-link class="breadcrumbs__link" :to="{name: 'main'}">
             Каталог
-          </a>
+          </router-link>
         </li>
         <li class="breadcrumbs__item">
-          <a class="breadcrumbs__link" href="#" @click.prevent="gotoPage('main')">
+          <router-link class="breadcrumbs__link" :to="{name: 'main'}">
             {{ category.title }}
-          </a>
+          </router-link>
         </li>
         <li class="breadcrumbs__item">
           <a class="breadcrumbs__link">
@@ -33,7 +33,7 @@
           {{ product.title }}
         </h2>
         <div class="item__form">
-          <form class="form" action="#" method="POST">
+          <form class="form" action="#" method="POST" @submit.prevent="addToCart">
             <b class="item__price">
               {{ product.price | numberFormat }} ₽
             </b>
@@ -84,15 +84,15 @@
 
             <div class="item__row">
               <div class="form__counter">
-                <button type="button" aria-label="Убрать один товар">
+                <button type="button" aria-label="Убрать один товар" @click.prevent="reduceAmount">
                   <svg width="12" height="12" fill="currentColor">
                     <use xlink:href="#icon-minus"></use>
                   </svg>
                 </button>
 
-                <input type="text" value="1" name="count">
+                <input type="text" name="count" v-model.number="productAmount">
 
-                <button type="button" aria-label="Добавить один товар">
+                <button type="button" aria-label="Добавить один товар" @click.prevent="increaseAmount">
                   <svg width="12" height="12" fill="currentColor">
                     <use xlink:href="#icon-plus"></use>
                   </svg>
@@ -169,13 +169,17 @@ import colors from '../data/colors.js';
 import colorCode from '../helpers/colors';
 
 export default {
-  props: ['pageParams'],
+  data() {
+    return {
+      productAmount: 1
+    }
+  },
   filters: {
     numberFormat
   },
   computed: {
     product () {
-      return products.find(product => product.id == this.pageParams.id);
+      return products.find(product => product.id == this.$route.params.id);
     },
     category() {
       return categories.find(category => category.id == this.product.categoryId);
@@ -186,7 +190,21 @@ export default {
   },
   methods: {
     gotoPage,
-    colorCode
+    colorCode,
+    addToCart() {
+      this.$store.commit(
+        'addProductToCart',
+        {productId: this.product.id, amount: this.productAmount}
+      )
+    },
+    increaseAmount() {
+      this.productAmount += 1
+    },
+    reduceAmount() {
+      if (this.productAmount != 1) {
+        this.productAmount -= 1
+      }
+    },
   },
 }
 </script>

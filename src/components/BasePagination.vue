@@ -29,7 +29,7 @@ export default {
     event: 'paginate'
   },
   props: ['page', 'count', 'perPage'],
-  watch: {
+    watch: {
     count() {
       this.$emit('paginate', 1);
     }
@@ -37,7 +37,7 @@ export default {
   computed: {
     pages(){
       return Math.ceil(this.count / this.perPage);
-    },
+    }
   },
   methods: {
     paginate(page) {
@@ -48,7 +48,7 @@ export default {
     },
     next() {
       this.$emit('paginate', this.page + 1);
-    },
+    }
   }
 }
 </script>

@@ -90,7 +90,7 @@
                   </svg>
                 </button>
 
-                <input type="text" name="count" v-model.number="productAmount">
+                <input type="number" min="1" step="1" oninput="validity.valid||(value='');" name="count" v-model.number="productAmount">
 
                 <button type="button" aria-label="Добавить один товар" @click.prevent="increaseAmount">
                   <svg width="12" height="12" fill="currentColor">

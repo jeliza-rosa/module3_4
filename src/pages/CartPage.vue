@@ -3,9 +3,9 @@
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
-          <a class="breadcrumbs__link" href="index.html">
+          <router-link class="breadcrumbs__link" :to="{name: 'main'}">
             Каталог
-          </a>
+          </router-link>
         </li>
         <li class="breadcrumbs__item">
           <a class="breadcrumbs__link">
@@ -18,7 +18,7 @@
         Корзина
       </h1>
       <span class="content__info">
-        {{products.length}} товара
+        {{amountProducts(products)}} товара
       </span>
     </div>
 
@@ -57,6 +57,15 @@
     filters: {numberFormat},
     computed: {
       ...mapGetters({products: 'cartDetailProducts', totalPrice: 'cartTotalPrice'}),
+    },
+    methods: {
+      amountProducts(arr) {
+        let sum = 0;
+        arr.forEach((el) => {
+          sum = sum + el.amount;
+        })
+        return sum;
+      }
     }
   }
 </script>

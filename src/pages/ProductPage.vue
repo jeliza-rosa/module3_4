@@ -1,5 +1,17 @@
 <template>
-    <main class="content container">
+    <main class="content container" v-if="!productData">
+      <div id="cube-loader-product">
+        <div class="caption">
+          <div class="cube-loader">
+            <div class="cube loader-1"></div>
+            <div class="cube loader-2"></div>
+            <div class="cube loader-4"></div>
+            <div class="cube loader-3"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <main class="content container" v-else>
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
@@ -9,7 +21,7 @@
         </li>
         <li class="breadcrumbs__item">
           <router-link class="breadcrumbs__link" :to="{name: 'main'}">
-            {{ category.title }}
+            {{ category }}
           </router-link>
         </li>
         <li class="breadcrumbs__item">
@@ -23,7 +35,7 @@
     <section class="item">
       <div class="item__pics pics">
         <div class="pics__wrapper">
-          <img width="570" height="570" :src="product.image" :alt="product.title">
+          <img width="570" height="570" :src="product.image.file.url" :alt="product.title">
         </div>
       </div>
 
@@ -41,10 +53,10 @@
             <fieldset class="form__block">
               <legend class="form__legend">Цвет:</legend>
               <ul class="colors">
-                <li class="colors__item" v-for="colorId in product.colors" :key="colorId">
+                <li class="colors__item" v-for="color in product.colors" :key="color.id">
                   <label class="colors__label">
-                    <input class="colors__radio sr-only" type="radio" name="color-item" :value="colorCode(colorId, colors).name" checked="">
-                    <span class="colors__value" :style="colorCode(colorId, colors).code">
+                    <input class="colors__radio sr-only" type="radio" name="color-item" :value="color.title" checked="">
+                    <span class="colors__value" :style="'background-color:' + color.code">
                     </span>
                   </label>
                 </li>
@@ -52,7 +64,7 @@
             </fieldset>
 
             <fieldset class="form__block">
-              <legend class="form__legend">Объемб в ГБ:</legend>
+              <legend class="form__legend">Объем в ГБ:</legend>
 
               <ul class="sizes sizes--primery">
                 <li class="sizes__item">
@@ -99,9 +111,21 @@
                 </button>
               </div>
 
-              <button class="button button--primery" type="submit">
+              <button class="button button--primery" type="submit" :disabled="productAddSending">
                 В корзину
               </button>
+            </div>
+            <div v-if="productAdded">Товар добавлен в корзину</div>
+            <div v-if="productAddSending">
+                <div class="content-add">
+                  <div class="load-wrapp">
+                    <div class="load-3">
+                      <div class="line"></div>
+                      <div class="line"></div>
+                      <div class="line"></div>
+                    </div>
+                  </div>
+                </div>
             </div>
           </form>
         </div>
@@ -161,41 +185,51 @@
 </template>
 
 <script>
-import products from '@/data/products';
-import categories from '@/data/categories';
 import gotoPage from "@/helpers/gotoPage";
 import numberFormat from '../helpers/numberFormat';
-import colors from '../data/colors.js';
-import colorCode from '../helpers/colors';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
+import { mapActions } from 'vuex';
 
 export default {
   data() {
     return {
-      productAmount: 1
+      productAmount: 1,
+      productData: null,
+      productLoading: false,
+      productLoadingFailed: false,
+
+      productAdded: false,
+      productAddSending: false
     }
   },
   filters: {
     numberFormat
   },
+
   computed: {
     product () {
-      return products.find(product => product.id == this.$route.params.id);
+      return this.productData;
     },
     category() {
-      return categories.find(category => category.id == this.product.categoryId);
-    },
-    colors() {
-      return colors;
+      return this.productData.category.title;
     },
   },
   methods: {
+    ...mapActions(['addProductToCart']),
+
     gotoPage,
-    colorCode,
     addToCart() {
-      this.$store.commit(
-        'addProductToCart',
-        {productId: this.product.id, amount: this.productAmount}
-      )
+      this.productAdded = false;
+      this.productAddSending = true;
+
+      this.loadProductsTimer = setTimeout(() => {
+        this.addProductToCart({productId: this.product.id, amount: this.productAmount})
+        .then(() => {
+          this.productAdded = true;
+          this.productAddSending = false;
+        })
+      }, 2000)
     },
     increaseAmount() {
       this.productAmount += 1
@@ -205,6 +239,24 @@ export default {
         this.productAmount -= 1
       }
     },
+    loadProduct() {
+      setTimeout(() => {
+        this.productLoading = true;
+        this.productLoadingFailed = false;
+        axios.get(API_BASE_URL + `/api/products/${this.$route.params.id}`)
+          .then(response => this.productData = response.data)
+          .catch(() => this.productLoadingFailed = true)
+          .then(() => this.productLoading = false)
+      }, 2000)
+    }
   },
+  watch: {
+    '$route.params.id': {
+      handler() {
+        this.loadProduct();
+      },
+      immediate: true
+    }
+  }
 }
 </script>

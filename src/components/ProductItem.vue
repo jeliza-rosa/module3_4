@@ -15,10 +15,10 @@
       </span>
 
       <ul class="colors colors--black">
-        <li class="colors__item" v-for="(colorId, index) in product.colors" :key="index">
-          <label class="colors__label">
-          <input class="colors__radio sr-only" type="radio" :value="colorCode(colorId, colors).code.substr(18)" v-model="color">
-          <span class="colors__value" :style="colorCode(colorId, colors).code">
+        <li class="colors__item" v-for="color in product.colors" :key="color.id">
+           <label class="colors__label">
+          <input class="colors__radio sr-only" type="radio" :value="color.title">
+          <span class="colors__value" :style="'background-color:' + color.code">
           </span>
           </label>
         </li>
@@ -27,7 +27,6 @@
 </template>
 
 <script>
-import colors from '../data/colors.js';
 import gotoPage from "@/helpers/gotoPage";
 import numberFormat from '../helpers/numberFormat';
 import colorCode from '../helpers/colors';
@@ -45,11 +44,6 @@ import colorCode from '../helpers/colors';
     props: ['product'],
     filters: {
       numberFormat
-    },
-    computed: {
-      colors() {
-        return colors;
-      },
     },
   }
 </script>

@@ -29,7 +29,6 @@
 <script>
 import gotoPage from "@/helpers/gotoPage";
 import numberFormat from '../helpers/numberFormat';
-import colorCode from '../helpers/colors';
 
   export default {
     data() {
@@ -39,7 +38,6 @@ import colorCode from '../helpers/colors';
     },
     methods: {
       gotoPage,
-      colorCode
     },
     props: ['product'],
     filters: {

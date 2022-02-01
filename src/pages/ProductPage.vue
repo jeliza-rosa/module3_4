@@ -189,7 +189,7 @@ import gotoPage from "@/helpers/gotoPage";
 import numberFormat from '../helpers/numberFormat';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
-import { mapActions } from 'vuex';
+import { mapActions} from 'vuex';
 
 export default {
   data() {
@@ -223,13 +223,11 @@ export default {
       this.productAdded = false;
       this.productAddSending = true;
 
-      this.loadProductsTimer = setTimeout(() => {
-        this.addProductToCart({productId: this.product.id, amount: this.productAmount})
-        .then(() => {
-          this.productAdded = true;
-          this.productAddSending = false;
-        })
-      }, 2000)
+      this.addProductToCart({productId: this.product.id, amount: this.productAmount})
+      .then(() => {
+        this.productAdded = true;
+        this.productAddSending = false;
+      })
     },
     increaseAmount() {
       this.productAmount += 1
@@ -240,14 +238,10 @@ export default {
       }
     },
     loadProduct() {
-      setTimeout(() => {
-        this.productLoading = true;
-        this.productLoadingFailed = false;
         axios.get(API_BASE_URL + `/api/products/${this.$route.params.id}`)
-          .then(response => this.productData = response.data)
-          .catch(() => this.productLoadingFailed = true)
-          .then(() => this.productLoading = false)
-      }, 2000)
+        .then(response => this.productData = response.data)
+        .catch(() => this.productLoadingFailed = true)
+        .then(() => this.productLoading = false)
     }
   },
   watch: {

@@ -154,8 +154,6 @@ import { API_BASE_URL } from '../config';
         this.$emit('update:priceTo', this.currentPriceTo);
         this.$emit('update:categoryId', this.currentCategoryId);
         this.$emit('update:colorId', this.currentColorId);
-        // this.colorId = this.currentColorId
-        console.log(this.colorId)
       },
       reset() {
         this.$emit('update:priceFrom', 0);

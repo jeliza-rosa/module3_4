@@ -20,7 +20,7 @@
       </ul>
 
       <h1 class="content__title">
-        Заказ оформлен <span>№ {{ getOrderInfo($route.params.id).id }}</span>
+        Заказ оформлен <span>№ {{ getOrderInfo.id }}</span>
       </h1>
     </div>
 
@@ -38,7 +38,7 @@
                 Получатель
               </span>
               <span class="dictionary__value">
-                {{ getOrderInfo($route.params.id).name }}
+                {{ getOrderInfo.name }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -46,7 +46,7 @@
                 Адрес доставки
               </span>
               <span class="dictionary__value">
-                {{ getOrderInfo($route.params.id).address }}
+                {{ getOrderInfo.address }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -54,7 +54,7 @@
                 Телефон
               </span>
               <span class="dictionary__value">
-                {{ getOrderInfo($route.params.id).phone }}
+                {{ getOrderInfo.phone }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -62,7 +62,7 @@
                 Email
               </span>
               <span class="dictionary__value">
-                {{ getOrderInfo($route.params.id).email }}
+                {{ getOrderInfo.email }}
               </span>
             </li>
             <li class="dictionary__item">
@@ -77,7 +77,7 @@
         </div>
 
         <div class="cart__block">
-          <ul class="cart__orders" v-for="product in getOrderInfo($route.params.id).basket.items" :key="product.id">
+          <ul class="cart__orders" v-for="product in basketItems" :key="product.id">
             <li class="cart__order">
               <h3>{{ product.product.title }}</h3>
               <b>{{ product.product.price | numberFormat }} ₽</b>
@@ -87,7 +87,7 @@
 
           <div class="cart__total">
             <p>Доставка: <b>500 ₽</b></p>
-            <p>Итого: <b>{{ amountProducts(getOrderInfo($route.params.id).basket.items) }}</b> товара на сумму <b>{{ getOrderInfo($route.params.id).totalPrice | numberFormat}} ₽</b></p>
+            <p>Итого: <b>{{ amountProducts(basketItems) }}</b> товара на сумму <b>{{ getOrderInfo.totalPrice | numberFormat}} ₽</b></p>
           </div>
         </div>
       </form>
@@ -105,12 +105,17 @@
         return;
       }
 
-      this.$store.dispatch('loadOrderInfo', this.$route.params.id)
+      this.$store.dispatch('loadOrderInfo', this.$route.params.id);
     },
-    methods: {
+    computed: {
       getOrderInfo() {
         return this.$store.state.orderInfo;
       },
+      basketItems() {
+        return this.getOrderInfo && this.getOrderInfo.basket ? this.getOrderInfo.basket.items : [];
+      }
+    },
+    methods: {
       amountProducts(arr) {
         let sum = 0;
         arr.forEach((el) => {

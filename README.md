@@ -1,4 +1,4 @@
-# skillbox
+# moire
 
 ## Project setup
 ```

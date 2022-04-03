@@ -20,16 +20,15 @@ const routes = [
     name: 'product',
     component: ProductPage,
   },
-
   {
     path: '/cart',
     name: 'cart',
-    component: CartPage
+    component: CartPage,
   },
   {
     path: '/order',
     name: 'order',
-    component: OrderPage
+    component: OrderPage,
   },
   {
     path: '/order/:id',

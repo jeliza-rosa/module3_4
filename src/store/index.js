@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, NOT_IMAGE } from '../config';
 
 Vue.use(Vuex);
 
@@ -16,23 +16,6 @@ export default new Vuex.Store({
     orderInfo: []
   },
   mutations: {
-    updateOrderInfo(state, orderInfo) {
-      state.orderInfo = orderInfo;
-    },
-    resetCart(state) {
-      state.cartProducts = [],
-      state.cartProductsData = []
-    },
-    updateCartProductAmount(state, {productId, amount}) {
-      const item = state.cartProducts.find(item => item.productId == productId);
-
-      if (item && amount > 0) {
-        item.amount = amount;
-      }
-    },
-    deleteCartProduct(state, productId) {
-      state.cartProducts = state.cartProducts.filter(item => item.productId !== productId)
-    },
     updateUserAccessKey(state, accessKey) {
       state.userAccessKey = accessKey;
     },
@@ -43,23 +26,44 @@ export default new Vuex.Store({
       state.cartProducts = state.cartProductsData.map(item => {
         return {
           productId: item.product.id,
-          amount: item.quantity
+          amount: item.quantity,
+          size: item.size,
+          color: item.color,
+          basketItemId: item.id
         }
       })
-    }
-  },
-  modules: {
+    },
+    updateCartProductAmount(state, {productId, amount}) {
+      const item = state.cartProducts.find(item => item.basketItemId == productId);
+
+      if (item && amount > 0) {
+        item.amount = amount;
+      }
+    },
+    resetCart(state) {
+      state.cartProducts = [],
+      state.cartProductsData = []
+    },
+    updateOrderInfo(state, orderInfo) {
+      state.orderInfo = orderInfo;
+    },
   },
   getters: {
     cartDetailProducts(state) {
       return state.cartProducts.map(item => {
         const product = state.cartProductsData.find(p => p.product.id === item.productId).product;
 
+        const images = product.colors.map(c => {
+          if (c.gallery) {
+            return c.gallery[0].file.url;
+          }
+          return NOT_IMAGE;
+        })
         return {
           ...item,
           product: {
             ...product,
-            image: product.image.file.url
+            image: images
           }
         }
       })
@@ -69,19 +73,8 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    loadOrderInfo(context, orderId) {
-      return axios.get(API_BASE_URL + '/api/orders/' + orderId, {
-        params: {
-          userAccessKey: context.state.userAccessKey
-        }
-      })
-      .then(response => {
-        context.commit('updateOrderInfo', response.data)
-      })
-    },
-
     loadCart(context) {
-      return axios.get(API_BASE_URL + '/api/baskets', {
+      return axios.get(API_BASE_URL + `/api/baskets`, {
         params: {
           userAccessKey: context.state.userAccessKey
         }
@@ -96,10 +89,11 @@ export default new Vuex.Store({
         context.commit('syncCartProducts');
       })
     },
-
-    addProductToCart(context, {productId, amount}) {
+    addProductToCart(context, {productId, color, size, amount}) {
       return axios.post(API_BASE_URL + `/api/baskets/products`, {
         productId: productId,
+        colorId: color,
+        sizeId: size,
         quantity: amount
       }, {
         params: {
@@ -111,7 +105,6 @@ export default new Vuex.Store({
         context.commit('syncCartProducts');
       })
     },
-
     updateCartProductAmount(context, {productId, amount}) {
       context.commit('updateCartProductAmount', {productId, amount})
 
@@ -120,7 +113,7 @@ export default new Vuex.Store({
       }
 
       return axios.put(API_BASE_URL + `/api/baskets/products`, {
-        productId: productId,
+        basketItemId: productId,
         quantity: amount
       }, {
         params: {
@@ -135,20 +128,30 @@ export default new Vuex.Store({
       })
     },
 
-    deleteCartProduct(context, {productId}) {
+    deleteCartProduct(context, {basketItemId}) {
 
       axios.delete(API_BASE_URL + `/api/baskets/products`, {
         params: {
           userAccessKey: context.state.userAccessKey
         },
         data: {
-          productId: productId
+          basketItemId: basketItemId
         }
       })
       .then(response => {
         context.commit('updateCardProductsData', response.data.items);
         context.commit('syncCartProducts');
       })
-    }
-  }
-});
+    },
+    loadOrderInfo(context, orderId) {
+      return axios.get(API_BASE_URL + '/api/orders/' + orderId, {
+        params: {
+          userAccessKey: context.state.userAccessKey
+        }
+      })
+      .then(response => {
+        context.commit('updateOrderInfo', response.data)
+      })
+    },
+  },
+})
